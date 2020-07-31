@@ -5,6 +5,9 @@
 #include <torch/csrc/autograd/engine.h>
 #include <torch/csrc/autograd/function.h>
 
+#include <time.h>
+#include <stdio.h>
+
 namespace torch {
 namespace autograd {
 
@@ -62,6 +65,7 @@ variable_list run_backward(
     bool create_graph,
     const variable_list& inputs,
     bool allow_unused) {
+
   size_t num_tensors = outputs.size();
   edge_list roots;
   roots.reserve(num_tensors);

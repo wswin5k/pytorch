@@ -18,6 +18,10 @@
 #include <unordered_set>
 #include <memory> // for unique_ptr
 
+#include <time.h>
+#include <stdio.h>
+#include <sys/time.h>
+
 using namespace torch::autograd;
 
 struct THPEngine {
@@ -107,6 +111,7 @@ static void _maybe_reinitialize_engine_after_fork() {
 // Implementation of torch._C._EngineBase.run_backward
 PyObject *THPEngine_run_backward(THPEngine *self, PyObject *args, PyObject *kwargs)
 {
+
   HANDLE_TH_ERRORS
   _maybe_reinitialize_engine_after_fork();
   PyObject *tensors = nullptr;
@@ -122,6 +127,13 @@ PyObject *THPEngine_run_backward(THPEngine *self, PyObject *args, PyObject *kwar
   if (!PyArg_ParseTupleAndKeywords(args, kwargs, "OObb|Ob", (char**)accepted_kwargs,
         &tensors, &grad_tensors, &keep_graph, &create_graph, &inputs, &allow_unreachable))
     return nullptr;
+  
+  struct timeval tv;
+  gettimeofday(&tv, NULL);
+  double secs = tv.tv_sec + ((double)tv.tv_usec)/1000000.0;
+  PyObject *_tensorTmp = PyTuple_GET_ITEM(tensors, 0);
+  auto& variable = ((THPVariable*)_tensorTmp)->cdata;
+  fprintf(stderr, "%d %f \n", variable.get_device(), secs);
 
   THPUtils_assert(PyTuple_Check(tensors), "tensors argument is expected to "
       "be a tuple, but got %s", THPUtils_typename(tensors));

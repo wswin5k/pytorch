@@ -7,6 +7,8 @@
 
 #include <nccl.h>
 
+#include <iostream>
+
 // Error checking is enabled only for NCCL versions 2.4+ since ncclCommAbort()
 // and ncclCommGetAsyncError() are not supported in earlier versions.
 #if defined(NCCL_MAJOR) && (NCCL_MAJOR == 2) && defined(NCCL_MINOR) && \
@@ -76,6 +78,7 @@ class NCCLComm {
     auto comm = std::make_shared<NCCLComm>();
     C10D_NCCL_CHECK(
         ncclCommInitRank(&(comm->ncclComm_), numRanks, commId, rank));
+    std::cout << "create here " << std::endl;
     return comm;
   }
 
@@ -143,8 +146,8 @@ class NCCLComm {
 #endif
   }
 
- protected:
   ncclComm_t ncclComm_;
+ protected:
   bool aborted_;
   ncclResult_t ncclAsyncErr_;
 };

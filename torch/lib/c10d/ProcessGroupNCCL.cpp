@@ -11,6 +11,10 @@
 
 #include <c10d/Utils.hpp>
 
+#include <iostream>
+#include <time.h>
+#include <sys/time.h>
+
 namespace c10d {
 
 namespace {
@@ -423,6 +427,7 @@ std::vector<std::shared_ptr<NCCLComm>>& ProcessGroupNCCL::getNCCLComm(
   // Hold the lock before modifying the cache.
   std::lock_guard<std::mutex> lock(devNCCLCommMapLock_);
 
+
   // Move the NCCL resource to cache
   devNCCLCommMap_.emplace(devicesKey, std::move(ncclComms));
   return devNCCLCommMap_[devicesKey];
@@ -799,6 +804,16 @@ std::shared_ptr<ProcessGroup::Work> ProcessGroupNCCL::barrier(
   auto ncclWork = dynamic_cast<ProcessGroupNCCL::WorkNCCL*>(work.get());
   TORCH_CHECK(ncclWork);
   ncclWork->barrierTensors_ = std::move(barrierTensors);
+  
+  // synchronize time
+  std::cout << "Synchronizing time" << std::endl;
+  const auto key = getKeyFromDevices(devices);
+  std::cout << devices << "  " << key << std::endl;
+  double* commArr = (double *)(devNCCLCommMap_[key][0]->ncclComm_);
+  struct timeval tv;
+  gettimeofday(&tv, NULL);
+  commArr[0] = tv.tv_sec + ((double)tv.tv_usec)/1000000.0;
+  fprintf(stderr, "%d %f ,\n", devices[0].index(), commArr[0]);
 
   return work;
 }

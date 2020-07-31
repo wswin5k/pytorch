@@ -659,7 +659,7 @@ std::vector<std::vector<size_t>> compute_bucket_assignment_by_size(
     const std::vector<at::Tensor>& tensors,
     const std::vector<size_t>& bucket_size_limits,
     const std::vector<bool>& expect_sparse_gradient) {
-  std::cout << "bucket size limits " << bucket_size_limits.size() << std::endl;
+  // std::cout << "bucket size limits " << bucket_size_limits.size() << std::endl;
   // Either expect_sparse_gradient is not specified or it has as many elements
   // as the vector with tensors.
   AT_ASSERT(
@@ -696,7 +696,7 @@ std::vector<std::vector<size_t>> compute_bucket_assignment_by_size(
     // be grouped together with other gradients and gets its own bucket.
     if (!expect_sparse_gradient.empty() && expect_sparse_gradient[i]) {
       result.push_back({i});
-      std::cout << "wektor rzadki" << std::endl;
+     // std::cout << "wektor rzadki" << std::endl;
       continue;
     }
 
@@ -714,7 +714,7 @@ std::vector<std::vector<size_t>> compute_bucket_assignment_by_size(
     auto& bucket_size_limit_iterator = bucket_size_limit_iterators[key];
     const auto bucket_size_limit = *bucket_size_limit_iterator;
     if (bucket.size >= bucket_size_limit) {
-      std::cout << "przekroczony limit" << std::endl;
+    //  std::cout << "przekroczony limit" << std::endl;
       result.emplace_back(std::move(bucket.indices));
       bucket = BucketAccumulator();
 
@@ -726,7 +726,7 @@ std::vector<std::vector<size_t>> compute_bucket_assignment_by_size(
     }
   }
 
-  std::cout << "buckets size " << buckets.size() <<  "restult size " << result.size() << std::endl;
+  //std::cout << "buckets size " << buckets.size() <<  "restult size " << result.size() << std::endl;
   // Add remaining buckets.
   for (auto& it : buckets) {
     auto& bucket = it.second;
@@ -734,7 +734,7 @@ std::vector<std::vector<size_t>> compute_bucket_assignment_by_size(
       result.emplace_back(std::move(bucket.indices));
     }
   }
-  std::cout << "restult size " << result.size() << std::endl;
+  //std::cout << "restult size " << result.size() << std::endl;
   // Sort resulting buckets by the minimum tensor index they include.
   // We assume that the order of the tensors is the order in which they are
   // used (or the reverse order in which their gradients are produced).
